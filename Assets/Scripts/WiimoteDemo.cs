@@ -26,7 +26,8 @@ public class WiimoteDemo : MonoBehaviour {
 
     void Start() {
         initial_rotation = model.rot.localRotation;
-
+        /*
+        //Header
         string[] rowDataTemp = new string[7];
         rowDataTemp[0] = "Time";
         rowDataTemp[1] = "Accel_x";
@@ -36,7 +37,7 @@ public class WiimoteDemo : MonoBehaviour {
         rowDataTemp[5] = "YawSpeed";
         rowDataTemp[6] = "RollSpeed";
         rowData.Add(rowDataTemp);
-
+        */
 
     }
 
@@ -63,6 +64,11 @@ public class WiimoteDemo : MonoBehaviour {
                     Debug.Log("Nothing to see here, officer.");
                 else
                     Debug.Log(wmp_x + "," + wmp_y + "," + wmp_z);
+                    if (wiimote.Button.a)
+                    {
+                    Debug.Log("Updating CSV");
+                    Update_csv(offset);
+                    }
 
                 model.rot.Rotate(offset, Space.Self);
 
@@ -183,6 +189,7 @@ public class WiimoteDemo : MonoBehaviour {
             wiimote.current_ext == ExtensionController.MOTIONPLUS_CLASSIC ||
             wiimote.current_ext == ExtensionController.MOTIONPLUS_NUNCHUCK) && GUILayout.Button("Deactivate WMP"))
             wiimote.DeactivateWiiMotionPlus();
+            
 
         GUILayout.Label("Calibrate Accelerometer");
         GUILayout.BeginHorizontal();
@@ -207,7 +214,7 @@ public class WiimoteDemo : MonoBehaviour {
             }
             Debug.Log(str.ToString());
         }
-        //Update_csv();
+        
         if (wiimote != null && wiimote.current_ext != ExtensionController.NONE)
         {
  
@@ -256,12 +263,12 @@ public class WiimoteDemo : MonoBehaviour {
                 GUILayout.Label("Roll Slow: " + data.RollSlow);
 
                 Vector3 offset = new Vector3(-data.PitchSpeed, data.YawSpeed, data.RollSpeed);
-                if (data.PitchSpeed != 0)
+                /*if (data.PitchSpeed != 0)
                 {
-                    Debug.Log("Updating CSV");
-                    Update_csv(offset);
+                    //Debug.Log("Updating CSV");
+                    //Update_csv(offset);
                 }
-
+                */
                 if (GUILayout.Button("Zero Out WMP"))
                 {
                     data.SetZeroValues();
@@ -365,12 +372,18 @@ public class WiimoteDemo : MonoBehaviour {
         public Renderer home;
     }
 
-	void OnApplicationQuit() {
-		if (wiimote != null) {
-			WiimoteManager.Cleanup(wiimote);
-	        wiimote = null;
-		}
+    void OnApplicationQuit()
+    {
+        if (wiimote != null)
+        {
+            WiimoteManager.Cleanup(wiimote);
+            wiimote = null;
+        }
+        Write_csv();
+    }
 
+    void Write_csv()
+    {
         string[][] output = new string[rowData.Count][];
 
         for (int i = 0; i < output.Length; i++)
@@ -389,16 +402,20 @@ public class WiimoteDemo : MonoBehaviour {
 
         string filePath = getPath();
 
+
         StreamWriter outStream = System.IO.File.CreateText(filePath);
         outStream.WriteLine(sb);
         outStream.Close();
-
+        rowData.Clear();
     }
+
+    
 
     void Update_csv(Vector3 offset)//
     {
        
-        string[] rowDataTemp = new string[7];
+        //string[] rowDataTemp = new string[7];
+        string[] rowDataTemp = new string[6];
         Vector3 accel = GetAccelVector();
         string accel_x = accel.x.ToString();
         string accel_y = accel.y.ToString();
@@ -406,15 +423,15 @@ public class WiimoteDemo : MonoBehaviour {
         string wmp_x = offset.x.ToString();
         string wmp_y = offset.y.ToString();
         string wmp_z = offset.z.ToString();
-        string time = System.DateTime.Now.ToString();
+        //string time = System.DateTime.Now.ToString();
 
-        rowDataTemp[0] = time;
-        rowDataTemp[1] = accel_x;
-        rowDataTemp[2] = accel_y;
-        rowDataTemp[3] = accel_z;
-        rowDataTemp[4] = wmp_x;
-        rowDataTemp[5] = wmp_y;
-        rowDataTemp[6] = wmp_z;
+        //rowDataTemp[0] = time;
+        rowDataTemp[0] = accel_x;
+        rowDataTemp[1] = accel_y;
+        rowDataTemp[2] = accel_z;
+        rowDataTemp[3] = wmp_x;
+        rowDataTemp[4] = wmp_y;
+        rowDataTemp[5] = wmp_z;
 
         rowData.Add(rowDataTemp);
     }
@@ -422,7 +439,7 @@ public class WiimoteDemo : MonoBehaviour {
     private string getPath()
     {
         //#if UNITY_EDITOR
-        return Application.dataPath + "/CSV/" + "Saved_data.csv";
+        return Application.dataPath + "/CSV/" + "SavedData.csv";
         /*#elif UNITY_ANDROID
                 return Application.persistentDataPath+"Saved_data.csv";
         #elif UNITY_IPHONE

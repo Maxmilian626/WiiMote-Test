@@ -50,12 +50,8 @@ namespace WiimoteApi
 
         public override bool InterpretData(byte[] data)
         {
-            
-            if (data == null || data.Length != 5)
-            {
-                
-                return false;
-            }
+            if (data == null || data.Length != 5) return false;
+
             // Note: data[0 - 1] is the buttons data.  data[2 - 4] is the accel data.
             // Accel data and buttons data is interleaved to reduce packet size.
             _accel[0] = ((int)data[2] << 2) | ((data[0] >> 5) & 0x03);

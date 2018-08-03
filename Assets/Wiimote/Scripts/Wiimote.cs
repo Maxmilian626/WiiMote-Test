@@ -585,11 +585,8 @@ public class Wiimote
     {
         byte[] buf = new byte[22];
         int status = WiimoteManager.RecieveRaw(hidapi_handle, buf);
-            if (status <= 0)
-            {
-                //Debug.Log("All quiet on this front");
-                return status; // Either there is some sort of error or we haven't recieved anything
-            }
+        if (status <= 0) return status; // Either there is some sort of error or we haven't recieved anything
+
         int typesize = GetInputDataTypeSize((InputDataType)buf[0]);
         byte[] data = new byte[typesize];
         for (int x = 0; x < data.Length; x++)
